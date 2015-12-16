@@ -1,0 +1,28 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'com.github.randomcodeorg.ppplugin'
+            artifactId 'ppplugin.gradle'
+            version '0.0.1'
+
+            from components.java
+        }
+    }
+}
+
+dependencies {
+    compile gradleApi()
+    compile 'com.github.randomcodeorg.ppplugin:ppplugin:0.2.0'
+    testCompile 'junit:junit:4.11'
+}
+
