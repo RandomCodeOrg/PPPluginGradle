@@ -1,0 +1,15 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile gradleApi()
+    compile 'com.github.randomcodeorg.ppplugin:ppplugin:0.2.0'
+    testCompile 'junit:junit:4.11'
+}
+
