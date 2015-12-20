@@ -10,7 +10,11 @@ import org.gradle.api.tasks.TaskAction;
 import com.github.randomcodeorg.ppplugin.data.DependencyResolutionException;
 import com.github.randomcodeorg.ppplugin.data.gradle.GradleBuildDataSource;
 import com.github.randomcodeorg.ppplugin.internals.InternalInvoker;
-
+/**
+ * The postprocess task for gradle projects using the 'java' plugin.
+ * @author Marcel Singer
+ *
+ */
 public class PostProcessGradleTask extends DefaultTask {
 
 	public PostProcessGradleTask() {

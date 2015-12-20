@@ -1,6 +1,9 @@
+// Build config for the gradle plugin
+
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 repositories {
     mavenCentral()
@@ -8,17 +11,41 @@ repositories {
 }
 
 
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+signing {
+    sign jar
+    sign sourceJar
+}
+
+tasks.publishToMavenLocal.dependsOn(signJar, signSourceJar)
+tasks.publishToMavenCentral.dependsOn(signJar, signSourceJar)
 publishing {
     publications {
-        maven(MavenPublication) {
+        mavenJava(MavenPublication) {
             groupId 'com.github.randomcodeorg.ppplugin'
-            artifactId 'ppplugin.gradle'
+            artifactId 'ppplugin-gradle'
             version '0.0.1'
 
             from components.java
+            artifact '/build/libs/ppplugin.gradle.jar.asc'
+            artifact sourceJar {
+            	classifier "sources"
+            }
+            artifact source: '/build/libs/ppplugin.gradle-sources.jar.asc', classifier: 'sources'
         }
     }
+    
 }
+
+
 
 dependencies {
     compile gradleApi()
