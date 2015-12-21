@@ -25,8 +25,11 @@ signing {
     sign sourceJar
 }
 
+
+
 tasks.publishToMavenLocal.dependsOn(signJar, signSourceJar)
-tasks.publishToMavenCentral.dependsOn(signJar, signSourceJar)
+tasks.publish.dependsOn(signJar, signSourceJar)
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -35,14 +38,37 @@ publishing {
             version '0.0.1'
 
             from components.java
-            artifact '/build/libs/ppplugin.gradle.jar.asc'
+            artifact source: '/build/libs/ppplugin.gradle.jar.asc', extension: 'jar.asc'
             artifact sourceJar {
             	classifier "sources"
             }
-            artifact source: '/build/libs/ppplugin.gradle-sources.jar.asc', classifier: 'sources'
+            artifact source: '/build/libs/ppplugin.gradle-sources.jar.asc', classifier: 'sources', extension: 'jar.asc'
+            pom.withXml {
+            	asNode().appendNode('description', 'A gradle plugin that executes one or multiple user defined processors that can be used to transform or modify the compilation result.')
+            	
+            	Node license = asNode().appendNode('licenses').appendNode('license')
+            	license.appendNode('name', 'Apache License, Version 2.0')
+            	license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+            	license.appendNode('distribution', 'repo')
+            	
+            	asNode().appendNode('name', 'Post Processor Plugin for Gradle')
+            	asNode().appendNode('url', 'https://github.com/RandomCodeOrg/PPPluginGradle')
+            	asNode().appendNode('scm').appendNode('url', 'https://github.com/RandomCodeOrg/PPPluginGradle.git')
+            	Node developer = asNode().appendNode('developers').appendNode('developer')
+            	developer.appendNode('id', 'RandomCodeOrg')
+            	developer.appendNode('name', 'RandomCodeOrg-Team')
+            }
         }
     }
-    
+    repositories {
+    	maven {
+    		credentials {
+    			username project.property('maven.settings.username')
+    			password project.property('maven.settings.password')
+    		}
+    		url 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+    	}
+    }
 }
 
 
