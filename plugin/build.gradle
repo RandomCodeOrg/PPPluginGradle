@@ -15,6 +15,19 @@ task sourceJar(type: Jar) {
     from sourceSets.main.allJava
 }
 
+task renamePom() {
+	file('build/publications/mavenJava/pom-default.xml.asc').renameTo(file('build/publications/mavenJava/pom.xml.asc'))
+}
+
+task signPom(type: Sign) {
+	files file('build/publications/mavenJava/pom-default.xml')
+	finalizedBy renamePom
+}
+
+
+
+
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
@@ -23,12 +36,26 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 signing {
     sign jar
     sign sourceJar
+    sign(file('build/publications/mavenJava/pom-default.xml'))
 }
 
 
+jar {
+	finalizedBy signJar
+}
 
-tasks.publishToMavenLocal.dependsOn(signJar, signSourceJar)
-tasks.publish.dependsOn(signJar, signSourceJar)
+sourceJar {
+	finalizedBy signSourceJar
+}
+
+afterEvaluate {
+    model {
+    	tasks.generatePomFileForMavenJavaPublication {
+        	finalizedBy signPom
+    	}
+	}
+}
+
 
 publishing {
     publications {
@@ -38,6 +65,7 @@ publishing {
             version '0.0.1'
 
             from components.java
+            artifact source: '/build/publications/mavenJava/pom.xml.asc', extension: 'pom.asc'
             artifact source: '/build/libs/ppplugin.gradle.jar.asc', extension: 'jar.asc'
             artifact sourceJar {
             	classifier "sources"

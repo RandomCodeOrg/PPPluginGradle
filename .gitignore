@@ -16,3 +16,6 @@ hs_err_pid*
 *.classpath
 *.project
 gradle.properties
+**/taskArtifacts/**
+**/build/**
+**/bin/**
