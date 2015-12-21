@@ -7,22 +7,23 @@ import org.gradle.api.plugins.JavaPlugin;
 
 /**
  * The plugin for Gradle.
+ * 
  * @author Marcel Singer
  *
  */
 public class PPPluginGradle implements Plugin<Project> {
 
 	public PPPluginGradle() {
-		
+
 	}
 
 	@Override
 	public void apply(Project project) {
-		Task postProcess = project.getTasks().create("postProcess", PostProcessGradleTask.class);
-		Task classTask = project.getTasks().getByName(JavaPlugin.CLASSES_TASK_NAME);
-		classTask.dependsOn(postProcess);
+		if (project.getPlugins().hasPlugin("java")) {
+			Task postProcess = project.getTasks().create("postProcess", PostProcessGradleTask.class);
+			Task classTask = project.getTasks().getByName(JavaPlugin.CLASSES_TASK_NAME);
+			classTask.dependsOn(postProcess);
+		}
 	}
-	
-	
 
 }
