@@ -1,12 +1,11 @@
 package com.github.randomcodeorg.ppplugin.data.gradle;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.Project;
+import org.gradle.api.artifacts.ConfigurationContainer;
 
-import com.github.randomcodeorg.ppplugin.data.BuildLog;
 import com.github.randomcodeorg.ppplugin.data.DependencyResolutionException;
 import com.github.randomcodeorg.ppplugin.data.ProjectData;
 
@@ -16,11 +15,29 @@ public class GradleProjectData implements ProjectData {
 	private final List<String> testClasspathElements = new ArrayList<>();
 	private final List<String> compileClasspathElements = new ArrayList<>();
 
-	public GradleProjectData(BuildLog log, SourceSetContainer container) {
-		for (File f : container.getByName("main").getCompileClasspath()) {
-			log.info(String.format("Adding compilation classpath element: %s", f.getAbsolutePath()));
-			compileClasspathElements.add(f.getAbsolutePath());
+	public GradleProjectData(Project project) {
+		ConfigurationContainer configurations = project.getConfigurations();
+		if (configurations.getNames().contains("compile")) {
+			buildClasspathElements(compileClasspathElements, configurations.getByName("compile").getAsPath());
 		}
+		if (configurations.getNames().contains("testCompile")) {
+			buildClasspathElements(testClasspathElements, configurations.getByName("testCompile").getAsPath());
+		}
+		if (configurations.getNames().contains("provided")) {
+			buildClasspathElements(runtimeClasspathElements, configurations.getByName("provided").getAsPath());
+		}
+	}
+
+	protected void buildClasspathElements(List<String> target, String path) {
+		if (path == null || path.isEmpty())
+			return;
+		if (!path.contains(";")) {
+			target.add(path);
+			return;
+		}
+		String[] elements = path.split(";");
+		for (String e : elements)
+			target.add(e.trim());
 	}
 
 	@Override

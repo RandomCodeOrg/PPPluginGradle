@@ -3,7 +3,7 @@ package com.github.randomcodeorg.ppplugin.data.gradle;
 import java.io.File;
 
 import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.Task;
 
 import com.github.randomcodeorg.ppplugin.data.BuildDataSource;
 import com.github.randomcodeorg.ppplugin.data.BuildLog;
@@ -14,12 +14,17 @@ public class GradleBuildDataSource implements BuildDataSource {
 	private final BuildLog log;
 	private final DefaultTask task;
 	private final ProjectData projectData;
+	private final Task compilationTask;
+	private final String compiledClassesDir;
 
-	public GradleBuildDataSource(DefaultTask task, SourceSetContainer container) {
-		log = new GradleBuildLog(task.getLogger());
+	public GradleBuildDataSource(DefaultTask task, Task compilationTask, String compiledClassesDir, BuildLog log,
+			ProjectData projectData) {
+		this.log = log;
 		log.info("Hello World!");
 		this.task = task;
-		this.projectData = new GradleProjectData(log, container);
+		this.projectData = projectData;
+		this.compilationTask = compilationTask;
+		this.compiledClassesDir = compiledClassesDir;
 	}
 
 	@Override
@@ -34,9 +39,14 @@ public class GradleBuildDataSource implements BuildDataSource {
 
 	@Override
 	public String getCompiledClassesDir() {
+		if (compiledClassesDir != null && !compiledClassesDir.isEmpty())
+			return compiledClassesDir;
+		if (compilationTask != null && !compilationTask.getOutputs().getFiles().isEmpty()) {
+			return compilationTask.getOutputs().getFiles().getFiles().iterator().next().getAbsolutePath();
+		}
 		String path = task.getProject().getBuildDir().getAbsolutePath();
 		if (!path.endsWith(File.separator)) {
-			return String.format("%s%sclasses%smain", path, File.separator, File.separator);
+			return String.format("%%sclasses%smain", path, File.separator, File.separator);
 		} else {
 			return String.format("%sclasses%smain", path, File.separator);
 		}
