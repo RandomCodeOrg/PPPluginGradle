@@ -18,6 +18,8 @@ public class PPPluginGradle implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
+		project.getTasks().create("showPaths", ShowPathsTask.class);
+		
 		if (project.getPlugins().hasPlugin("java")) {
 			Task postProcess = project.getTasks().create("postProcess", PostProcessGradleTask.class);
 			Task javaCompilationTask = project.getTasks().getByName("compileJava");
