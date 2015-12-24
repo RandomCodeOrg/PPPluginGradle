@@ -16,16 +16,10 @@ task sourceJar(type: Jar) {
 }
 
 task renamePom() {
-	file('build/publications/mavenJava/pom-default.xml.asc').renameTo(file('build/publications/mavenJava/pom.xml.asc'))
+	doLast{
+		file('/build/publications/mavenJava/pom-default.xml.asc').renameTo(file('/build/publications/mavenJava/pom.xml.asc'))
+	}
 }
-
-task signPom(type: Sign) {
-	files file('build/publications/mavenJava/pom-default.xml')
-	finalizedBy renamePom
-}
-
-
-
 
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -36,7 +30,6 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 signing {
     sign jar
     sign sourceJar
-    sign(file('build/publications/mavenJava/pom-default.xml'))
 }
 
 
@@ -47,6 +40,14 @@ jar {
 sourceJar {
 	finalizedBy signSourceJar
 }
+
+task('signPom'){
+	doLast{
+		signing.sign file('/build/publications/mavenJava/pom-default.xml')
+	}
+}.finalizedBy renamePom
+
+
 
 afterEvaluate {
     model {
